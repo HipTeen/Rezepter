@@ -1,9 +1,10 @@
 package gui.controller
 
+import java.io.File
 import java.text.NumberFormat
 import javafx.beans.property.{SimpleDoubleProperty, SimpleStringProperty}
-import javafx.collections.FXCollections
-import javafx.scene.control.{ComboBox, TextField}
+import javafx.collections.{FXCollections, ObservableList}
+import javafx.scene.control.{ComboBox, ListView, TextField}
 import javafx.scene.layout.GridPane
 
 import data.IngredientItem
@@ -11,9 +12,30 @@ import data.IngredientItem
 /**
  *
  */
-class MainWindowController(val ingredientPane: GridPane) {
+class MainWindowController(val ingredientPane: GridPane, val recipeListView : ListView[String]) {
 
   var items: List[IngredientItem] = Nil
+
+  def isFile(filename: String, pathToFile: String): Boolean = {
+    val file: File = new File(pathToFile + filename)
+    file.isFile
+  }
+
+  def getFiles(filenames: List[String], path : String): ObservableList[String] = {
+    val obList : ObservableList[String] = FXCollections.observableArrayList()
+    filenames.map(filename => if (isFile(filename, path)) obList.add(filename))
+    obList
+  }
+
+  def getRecipeFileNames: ObservableList[String] = {
+    val path = "/home/thorsten/Dokumente/recipes/"
+    val dir : File = new File(path)
+    getFiles(dir.list().toList, path)
+  }
+
+  def fillRecipeView() : Unit = {
+    recipeListView.setItems(getRecipeFileNames)
+  }
 
   def createAmountField: TextField = {
     val amountField: TextField = new TextField()
